@@ -1805,7 +1805,7 @@ void GraphBuilder::copy_inline_content(ciInlineKlass* vk, Value src, int src_off
     if (field->is_flat()) {
       copy_inline_content(field->type()->as_inline_klass(), src, src_off + offset, dest, dest_off + offset, state_before, enclosing_field);
       if (!field->is_null_free()) {
-        // Nullable, copy the null marker using Unsafe because null markers are no real fields
+        // Nullable, copy the null marker using Unsafe because null markers are not real fields
         int null_marker_offset = field->null_marker_offset() - vk->payload_offset();
         Value offset = append(new Constant(new LongConstant(src_off + null_marker_offset)));
         Value nm = append(new UnsafeGet(T_BOOLEAN, src, offset, false));
@@ -1813,8 +1813,15 @@ void GraphBuilder::copy_inline_content(ciInlineKlass* vk, Value src, int src_off
         append(new UnsafePut(T_BOOLEAN, dest, offset, nm, false));
       }
     } else {
-      Value value = append(new LoadField(src, src_off + offset, field, false, state_before, false));
+      LoadField* load = new LoadField(src, src_off + offset, field, false, state_before, false);
+      if (i > 0) {
+        load->set_needs_null_check(false);
+      }
+      Value value = append(load);
       StoreField* store = new StoreField(dest, dest_off + offset, field, value, false, state_before, false);
+      if (i > 0) {
+        store->set_needs_null_check(false);
+      }
       store->set_enclosing_field(enclosing_field);
       append(store);
     }
