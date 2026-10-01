@@ -1,0 +1,11 @@
+-Xbatch
+-Xcomp
+-XX:TieredStopAtLevel=1
+-XX:CompileCommand=compileonly,*SanityCheck8346105$Holder::<init>
+-XX:CompileCommand=compileonly,*SanityCheck8346105::read
+-XX:+UnlockDiagnosticVMOptions
+-XX:+PrintNullCheckElimination
+-XX:+PrintIRWithLIR
+-XX:+PrintCFGToFile
+--enable-preview
+--add-exports java.base/jdk.internal.vm.annotation=ALL-UNNAMED
